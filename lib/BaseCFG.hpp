@@ -97,6 +97,8 @@ class Value
     bool isConstOne();
     int GetUserListSize(){return GetUserlist().GetSize();}
     int BelongsToExp;
+    template<typename T>
+    T* as();
 };
 using Operand=Value*;
 // class Constant:public User

@@ -117,8 +117,9 @@ class BinaryInst:public User
     public:
     enum Operation
     {
-        Op_Add,Op_Sub,Op_Mul,Op_Div,Op_And,Op_Or,Op_Mod,
+        Op_Add,Op_Sub,Op_Mul,Op_Div,Op_Mod,
         //what's below should be translate to cmp inst in llvm
+        Op_And,Op_Or,
         Op_E,Op_NE,Op_GE,Op_L,Op_LE,Op_G
     };//卧槽，原批
     private:
@@ -127,7 +128,8 @@ class BinaryInst:public User
     BinaryInst(Operand _A,Operation __op,Operand _B);
     void print()final;
     std::string GetOperation();
-    Operation getopration();
+    Operation getopration()const;
+    bool ConstCalc();
     static BinaryInst* CreateInst(Operand _A,Operation __op,Operand _B,User* place=nullptr);
 };
 class GetElementPtrInst:public User

@@ -51,12 +51,14 @@ class RISCVMIR:public User
         EndComp,
 
         BeginBranch,
+        _j,//equals jal x0 ...
         _beq,
         _bne,
         _blt,
         _bge,
         _bltu,
         _bgeu,
+        _call,
         EndBranch,
 
         BeginJumpAndLink,
@@ -127,5 +129,15 @@ class RISCVMIR:public User
     virtual void print(){
         /// @todo 
         assert(0);
+    }
+    inline static RISCVMIR* replace_with_mir_opcode(RISCVISA _opcode,User* inst){
+        auto ret=new RISCVMIR(_opcode);
+        for(int i=0;i<inst->Getuselist().size();i++)
+            ret->add_use(inst->GetOperand(i));
+        inst->Replace(ret);
+        // legalize
+    };
+    bool isArithmetic(){
+        return (EndArithmetic>opcode&&opcode>BeginArithmetic)|(EndFloatArithmetic>opcode&&opcode>BeginFloatArithmetic);
     }
 };
