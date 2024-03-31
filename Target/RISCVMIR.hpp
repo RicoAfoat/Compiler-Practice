@@ -1,6 +1,7 @@
 #include "CFG.hpp"
-class RISCVMIR:User
+class RISCVMIR:public User
 {
+    public:
     enum RISCVISA{
         BeginShift,
         /// @todo need generation
@@ -121,7 +122,10 @@ class RISCVMIR:User
         EndFloat,
     }opcode;
 
-    public:
     RISCVMIR(RISCVISA _opcode):User(){};
     inline RISCVISA& GetOpcode(){return opcode;};
+    virtual void print(){
+        /// @todo 
+        assert(0);
+    }
 };
