@@ -325,9 +325,11 @@ void BinaryInst::print(){
         else std::cout<<"frem ";///应该不存在
         break;
     case BinaryInst::Op_And:
+        assert("Seems Not Appearing In IR");
         std::cout<<"and ";
         break;
     case BinaryInst::Op_Or:
+        assert("Seems Not Appearing In IR");
         std::cout<<"Or ";
         break;
     case BinaryInst::Op_E:

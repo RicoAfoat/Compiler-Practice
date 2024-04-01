@@ -131,19 +131,14 @@ class RISCVMIR:public User
         EndFloat,
     }opcode;
     /// @todo A new Constructor to replace this with a Type* parameter and a set of operand to be added in the constructor 
-    RISCVMIR(RISCVISA _opcode):User(){};
+    RISCVMIR(RISCVISA):User(){};
+    RISCVMIR(RISCVISA,Operand...);
     inline RISCVISA& GetOpcode(){return opcode;};
     virtual void print(){
         /// @todo 
         assert(0);
     }
-    inline static RISCVMIR* replace_with_mir_opcode(RISCVISA _opcode,User* inst){
-        auto ret=new RISCVMIR(_opcode);
-        for(int i=0;i<inst->Getuselist().size();i++)
-            ret->add_use(inst->GetOperand(i));
-        inst->Replace(ret);
-        // legalize
-    };
+    static RISCVMIR* replace_with_mir_opcode(RISCVISA,User*);
     bool isArithmetic(){
         return (EndArithmetic>opcode&&opcode>BeginArithmetic)|(EndFloatArithmetic>opcode&&opcode>BeginFloatArithmetic);
     }

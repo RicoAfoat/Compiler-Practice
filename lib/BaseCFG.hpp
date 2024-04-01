@@ -125,7 +125,7 @@ class User:public Value,public list_node<BasicBlock,User>
     void RSUW(int,Operand);
     /// @short a total replace used by backend
     /// @details RAUW, ClearRelation, Replace in BasicBlock and call memory delete
-    void Replace(Operand);
+    void Replace(Operand...);
     bool LiveOut();
     Operand GetOperand(int)const;
 };

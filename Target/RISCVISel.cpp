@@ -38,29 +38,69 @@ void InstLowering(UnCondInst* inst){
 
 void InstLowering(CondInst* inst){
     auto cond=inst->GetOperand(0)->as<BinaryInst>();
-    User* result=nullptr;
-    switch (cond->getopration())
-    {
-    case BinaryInst::Op_L:
-        break;
-    case BinaryInst::Op_LE:
-        break;
-    case BinaryInst::Op_G:
-        break;
-    case BinaryInst::Op_GE:
-        break;
-    case BinaryInst::Op_E:
-        break;
-    case BinaryInst::Op_NE:
-        break;
-    case BinaryInst::Op_Or:
-        break;
-    case BinaryInst::Op_And:
-        break;
-    default:
-        break;
+    assert(cond!=nullptr&&"Invalid Condition");
+    assert((cond->GetOperand(0)->GetType()==IntType::NewIntTypeGet()||cond->GetOperand(0)->GetType()==FloatType::NewFloatTypeGet())&&"Invalid Condition Type");
+    if(cond->GetOperand(0)->GetType()==IntType::NewIntTypeGet()){
+        switch (cond->getopration())
+        {
+            case BinaryInst::Op_L:
+            {
+                auto fi=new RISCVMIR(RISCVMIR::_blt,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
+                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                inst->Replace(fi,se);
+                break;
+            }
+            case BinaryInst::Op_LE:
+            {
+                auto fi=new RISCVMIR(RISCVMIR::_bge,cond->GetOperand(1),cond->GetOperand(0),inst->GetOperand(1));
+                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                break;
+            }
+            case BinaryInst::Op_G:
+            {
+                auto fi=new RISCVMIR(RISCVMIR::_blt,cond->GetOperand(1),cond->GetOperand(0),inst->GetOperand(1));
+                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                inst->Replace(fi,se);
+                break;
+            }
+            case BinaryInst::Op_GE:
+            {
+                auto fi=new RISCVMIR(RISCVMIR::_bge,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
+                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                inst->Replace(fi,se);
+                break;
+            }
+            case BinaryInst::Op_E:
+            {    
+                auto fi=new RISCVMIR(RISCVMIR::_beq,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
+                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                inst->Replace(fi,se);
+                break;
+            }
+            case BinaryInst::Op_NE:
+            {
+                auto fi=new RISCVMIR(RISCVMIR::_bne,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
+                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                inst->Replace(fi,se);
+                break;
+            }
+            case BinaryInst::Op_Or:
+            {
+                assert("Or will not appear in IR");
+                break;
+            }
+            case BinaryInst::Op_And:
+            {
+                assert("And will not appear in IR");
+                break;
+            }
+            default:
+                break;
+        }
     }
-    inst->Replace(result);
+    else{
+
+    }
 }
 
 void InstLowering(CallInst* inst){
@@ -127,7 +167,8 @@ void InstLowering(GetElementPtrInst* inst){
         hasSubtype=dynamic_cast<HasSubType*>(hasSubtype->GetSubType());
     }
     if(offset!=0)
-        auto add=new RISCVMIR(RISCVMIR::RISCVISA::_addi,baseptr,offset);
+        /// @warning Dangerous Conversion
+        auto add=new RISCVMIR(RISCVMIR::RISCVISA::_addi,baseptr,ConstIRInt::GetNewConstant((int)offset));
 }
 
 void InstLowering(User* inst){
