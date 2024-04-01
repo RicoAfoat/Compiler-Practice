@@ -19,7 +19,10 @@ class RISCVMIR:public User
         BeginArithmetic,
         _add,
         _addi,
+        _addw,
+        _addiw,
         _sub,
+        _subw,
         _lui,
         _auipc,//?
 
@@ -27,11 +30,15 @@ class RISCVMIR:public User
         _mulh,
         _mulhsu,
         _mulhu,
+        _mulw,
 
         _div,
         _divu,
+        _divw,
         _rem,
         _remu,
+        _remw,
+        _remuw,
         EndArithmetic,
 
         BeginLogic,
@@ -123,7 +130,7 @@ class RISCVMIR:public User
         EndFloatArithmetic,
         EndFloat,
     }opcode;
-
+    /// @todo A new Constructor to replace this with a Type* parameter and a set of operand to be added in the constructor 
     RISCVMIR(RISCVISA _opcode):User(){};
     inline RISCVISA& GetOpcode(){return opcode;};
     virtual void print(){

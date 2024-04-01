@@ -1,7 +1,7 @@
 #include <memory>
 enum InnerDataType
 {
-    IR_Value_INT,IR_Value_VOID,IR_Value_Float,IR_PTR,IR_ARRAY
+    IR_Value_INT,IR_Value_VOID,IR_Value_Float,IR_PTR,IR_ARRAY,RISCVPTR,
 };
 class Type
 {
@@ -72,4 +72,13 @@ class ArrayType:public HasSubType
     static ArrayType* NewArrayTypeGet(int,Type*);
     int GetNumEle();
     void print()final;
+};
+
+// Type System is not designed very good
+// int32,int64,uint64...,hard to distinguish
+class RISCVPTR:public Type{
+    static RISCVPTR instance;
+    RISCVPTR():Type(InnerDataType::RISCVPTR){size=8;};
+    public:
+    static RISCVPTR* NewRISCVPTRGet(){return &instance;};
 };

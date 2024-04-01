@@ -76,31 +76,58 @@ void InstLowering(RetInst* inst){
 void InstLowering(BinaryInst* inst){
     if(inst->getopration()<BinaryInst::Op_And){
         if(inst->ConstCalc())return;
+        RISCVMIR* result;
         switch (inst->getopration())
         {
         case BinaryInst::Op_Add:
-            RISCVMIR::replace_with_mir_opcode(RISCVMIR::_add,inst);
+            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_add,inst);
             break;
         case BinaryInst::Op_Sub:
-            RISCVMIR::replace_with_mir_opcode(RISCVMIR::_sub,inst);
+            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_sub,inst);
             break;
         case BinaryInst::Op_Mul:
-            RISCVMIR::replace_with_mir_opcode(RISCVMIR::_mul,inst);
+            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_mul,inst);
             break;
         case BinaryInst::Op_Div:
-            RISCVMIR::replace_with_mir_opcode(RISCVMIR::_div,inst);
+            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_div,inst);
             break;
         case BinaryInst::Op_Mod:
-            RISCVMIR::replace_with_mir_opcode(RISCVMIR::_rem,inst);
+            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_rem,inst);
             break;
         default:
             break;
         }
+        /// @todo convert to addi
+        /// @todo convert to float
     }
 }
 
 void InstLowering(GetElementPtrInst* inst){
-    // FrameControl needed
+    // cast it to multiple add and mul first 
+    /// @todo 循环不变量外提很重要了这里，之后会做一个循环不变量外提的优化
+    int limi=inst->Getuselist().size();
+    auto baseptr=inst->GetOperand(0);
+    auto hasSubtype=dynamic_cast<HasSubType*>(baseptr->GetType());
+    size_t offset=0;
+    for(int i=1;i<limi;i++){
+        // just make sure
+        assert(hasSubtype!=nullptr&&"Impossible Here");
+        size_t size=hasSubtype->GetSubType()->get_size();
+        auto index=inst->GetOperand(i);
+        if(index->isConst()){
+            if(auto constindex=dynamic_cast<ConstIRInt*>(index))
+                offset+=size*(size_t)constindex->GetVal();
+            else assert("?Impossible Here");
+        }
+        else{
+            /// @warning Dangerous Conversion Here
+            auto mul=new RISCVMIR(RISCVMIR::RISCVISA::_mulw,index,ConstIRInt::GetNewConstant((int)size));
+            baseptr=new RISCVMIR(RISCVMIR::RISCVISA::_add,baseptr,mul);
+        }
+        hasSubtype=dynamic_cast<HasSubType*>(hasSubtype->GetSubType());
+    }
+    if(offset!=0)
+        auto add=new RISCVMIR(RISCVMIR::RISCVISA::_addi,baseptr,offset);
 }
 
 void InstLowering(User* inst){
