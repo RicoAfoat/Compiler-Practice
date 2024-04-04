@@ -45,42 +45,42 @@ void InstLowering(CondInst* inst){
         {
             case BinaryInst::Op_L:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_blt,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
-                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_blt,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
+                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
                 inst->Replace(fi,se);
                 break;
             }
             case BinaryInst::Op_LE:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_bge,cond->GetOperand(1),cond->GetOperand(0),inst->GetOperand(1));
-                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_bge,cond->GetOperand(1),cond->GetOperand(0),inst->GetOperand(1));
+                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
                 break;
             }
             case BinaryInst::Op_G:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_blt,cond->GetOperand(1),cond->GetOperand(0),inst->GetOperand(1));
-                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_blt,cond->GetOperand(1),cond->GetOperand(0),inst->GetOperand(1));
+                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
                 inst->Replace(fi,se);
                 break;
             }
             case BinaryInst::Op_GE:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_bge,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
-                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_bge,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
+                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
                 inst->Replace(fi,se);
                 break;
             }
             case BinaryInst::Op_E:
             {    
-                auto fi=new RISCVMIR(RISCVMIR::_beq,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
-                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_beq,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
+                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
                 inst->Replace(fi,se);
                 break;
             }
             case BinaryInst::Op_NE:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_bne,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
-                auto se=new RISCVMIR(RISCVMIR::_j,inst->GetOperand(2));
+                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_bne,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
+                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
                 inst->Replace(fi,se);
                 break;
             }
@@ -103,20 +103,11 @@ void InstLowering(CondInst* inst){
     }
 }
 
-void InstLowering(CallInst* inst){
-    //call inst留到寄存器分配完，做栈帧管理的时候来
-    return;
-}
-
-void InstLowering(RetInst* inst){
-    // 你也一样
-    return;
-}
-
 void InstLowering(BinaryInst* inst){
     if(inst->getopration()<BinaryInst::Op_And){
         if(inst->ConstCalc())return;
         RISCVMIR* result;
+        /// @todo needs legalize, both type and imm
         switch (inst->getopration())
         {
         case BinaryInst::Op_Add:
@@ -161,14 +152,14 @@ void InstLowering(GetElementPtrInst* inst){
         }
         else{
             /// @warning Dangerous Conversion Here
-            auto mul=new RISCVMIR(RISCVMIR::RISCVISA::_mulw,index,ConstIRInt::GetNewConstant((int)size));
-            baseptr=new RISCVMIR(RISCVMIR::RISCVISA::_add,baseptr,mul);
+            auto mul=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_mul,index,ConstIRInt::GetNewConstant((int)size));
+            baseptr=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_add,baseptr,mul);
         }
         hasSubtype=dynamic_cast<HasSubType*>(hasSubtype->GetSubType());
     }
     if(offset!=0)
         /// @warning Dangerous Conversion
-        auto add=new RISCVMIR(RISCVMIR::RISCVISA::_addi,baseptr,ConstIRInt::GetNewConstant((int)offset));
+        auto add=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_add,baseptr,ConstIRInt::GetNewConstant((int)offset));
 }
 
 void InstLowering(User* inst){

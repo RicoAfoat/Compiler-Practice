@@ -1,6 +1,8 @@
 #include "CFG.hpp"
+#include "RISCVType.hpp"
 class RISCVMIR:public User
 {
+    RISCVType tp_enum;
     public:
     enum RISCVISA{
         BeginShift,
@@ -18,7 +20,7 @@ class RISCVMIR:public User
         
         BeginArithmetic,
         _add,
-        _addi,
+        _addi,//-2048~2047
         _addw,
         _addiw,
         _sub,
@@ -131,8 +133,8 @@ class RISCVMIR:public User
         EndFloat,
     }opcode;
     /// @todo A new Constructor to replace this with a Type* parameter and a set of operand to be added in the constructor 
-    RISCVMIR(RISCVISA):User(){};
-    RISCVMIR(RISCVISA,Operand...);
+    // RISCVMIR(RISCVISA):User(){};
+    RISCVMIR(Type*,RISCVISA,Operand...);
     inline RISCVISA& GetOpcode(){return opcode;};
     virtual void print(){
         /// @todo 
