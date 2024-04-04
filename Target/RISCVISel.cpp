@@ -115,6 +115,7 @@ void InstLowering(BinaryInst* inst){
                 result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_add,inst);
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
                 result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fadd_s,inst);
+            else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Sub:
@@ -123,6 +124,7 @@ void InstLowering(BinaryInst* inst){
                 result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_sub,inst);
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
                 result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fsub_s,inst);
+            else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Mul:
@@ -131,6 +133,7 @@ void InstLowering(BinaryInst* inst){
                 result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_mul,inst);
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
                 result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fmul_s,inst);
+            else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Div:
@@ -139,6 +142,7 @@ void InstLowering(BinaryInst* inst){
                 result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_div,inst);
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
                 result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fdiv_s,inst);
+            else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Mod:
