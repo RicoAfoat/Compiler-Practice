@@ -1,14 +1,20 @@
 #include "RISCVISel.hpp"
 #include "RISCVMIR.hpp"
 
-namespace RISCVISel{
-bool run(Function* m){
+bool RISCVISel::run(Function* m){
     for(auto i:*m)
         for(auto inst:*i)
             InstLowering(inst);
     return true;
 }
-void InstLowering(StoreInst* inst){
+
+/// gathering all allocainsts
+void RISCVISel::InstLowering(AllocaInst* inst){
+    ctx.add_localvar(inst);
+    inst->EraseFromParent();
+}
+
+void RISCVISel::InstLowering(StoreInst* inst){
     if(inst->GetOperand(0)->GetType()==IntType::NewIntTypeGet())
         RISCVMIR::replace_with_mir_opcode(RISCVMIR::_sw,inst);
     else if(inst->GetOperand(0)->GetType()==FloatType::NewFloatTypeGet())
@@ -16,7 +22,7 @@ void InstLowering(StoreInst* inst){
     else assert("invalid store type");
 }
 
-void InstLowering(LoadInst* inst){
+void RISCVISel::InstLowering(LoadInst* inst){
     if(inst->GetOperand(0)->GetType()==IntType::NewIntTypeGet())
         RISCVMIR::replace_with_mir_opcode(RISCVMIR::_lw,inst);
     else if(inst->GetOperand(0)->GetType()==FloatType::NewFloatTypeGet())
@@ -24,19 +30,19 @@ void InstLowering(LoadInst* inst){
     else assert("invalid load type");
 }
 
-void InstLowering(FPTSI* inst){
+void RISCVISel::InstLowering(FPTSI* inst){
     RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fcvt_w_s,inst);
 }
 
-void InstLowering(SITFP* inst){
+void RISCVISel::InstLowering(SITFP* inst){
     RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fcvt_s_w,inst);
 }
 
-void InstLowering(UnCondInst* inst){
+void RISCVISel::InstLowering(UnCondInst* inst){
     RISCVMIR::replace_with_mir_opcode(RISCVMIR::_j,inst);
 }
 
-void InstLowering(CondInst* inst){
+void RISCVISel::InstLowering(CondInst* inst){
     auto cond=inst->GetOperand(0)->as<BinaryInst>();
     assert(cond!=nullptr&&"Invalid Condition");
     assert((cond->GetOperand(0)->GetType()==IntType::NewIntTypeGet()||cond->GetOperand(0)->GetType()==FloatType::NewFloatTypeGet())&&"Invalid Condition Type");
@@ -99,11 +105,11 @@ void InstLowering(CondInst* inst){
         }
     }
     else{
-
+        assert("Not IMPL");
     }
 }
 
-void InstLowering(BinaryInst* inst){
+void RISCVISel::InstLowering(BinaryInst* inst){
     if(inst->getopration()<BinaryInst::Op_And){
         if(inst->ConstCalc())return;
         RISCVMIR* result;
@@ -157,7 +163,7 @@ void InstLowering(BinaryInst* inst){
     }
 }
 
-void InstLowering(GetElementPtrInst* inst){
+void RISCVISel::InstLowering(GetElementPtrInst* inst){
     // cast it to multiple add and mul first 
     /// @todo 循环不变量外提很重要了这里，之后会做一个循环不变量外提的优化
     int limi=inst->Getuselist().size();
@@ -184,8 +190,9 @@ void InstLowering(GetElementPtrInst* inst){
         auto add=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_addw,baseptr,ConstSize_t::GetNewConstant(offset));
 }
 
-void InstLowering(User* inst){
+void RISCVISel::InstLowering(User* inst){
     if(auto store=dynamic_cast<StoreInst*>(inst))InstLowering(store);
     else if(auto load=dynamic_cast<LoadInst*>(inst))InstLowering(load);
 }
-}
+
+RISCVISel::RISCVISel(RISCVLoweringContext& _ctx):ctx(_ctx){}

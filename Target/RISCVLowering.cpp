@@ -15,10 +15,14 @@ bool RISCVModuleLowering::run(Module* m){
 }
 
 bool RISCVFunctionLowering::run(Function* m){
-    // Instruction Selection
-    /// @todo address_manager_for_allocainst
-    RISCVISel isel;
+    RISCVISel isel(ctx);
     isel.run(m);
+    // only imm, call, ret is not dealt with after this
+    // if it is a legal imm, we should add i suffix
+    // all we should alloca register to it and generate li
+
     // Register Allocation
+
+
     // Instruction Schedule
 }

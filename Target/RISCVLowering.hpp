@@ -1,5 +1,7 @@
 #include "CFG.hpp"
 #include "BackendPass.hpp"
+#include "RISCVFrameContext.hpp"
+
 class RISCVModuleLowering:BackEndPass<Module>{
     bool LoweringGlobalValue(Module*);
     public:
@@ -7,6 +9,7 @@ class RISCVModuleLowering:BackEndPass<Module>{
 };
 
 class RISCVFunctionLowering:BackEndPass<Function>{
+    RISCVLoweringContext ctx;
     public:
     bool run(Function*);
 };
