@@ -166,6 +166,15 @@ class ConstIRFloat:public ConstantData
     double GetValAsDouble() const { return static_cast<double>(val);}
 };
 
+class ConstSize_t:public ConstantData
+{
+    size_t val;
+    ConstSize_t(size_t);
+    public:
+    static ConstSize_t* GetNewConstant(size_t=0);
+    size_t GetVal();
+};
+
 // 出现了我直接吃
 class ConstPtr:public ConstantData
 {

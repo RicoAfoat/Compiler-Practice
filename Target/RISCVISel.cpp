@@ -107,29 +107,49 @@ void InstLowering(BinaryInst* inst){
     if(inst->getopration()<BinaryInst::Op_And){
         if(inst->ConstCalc())return;
         RISCVMIR* result;
-        /// @todo needs legalize, both type and imm
         switch (inst->getopration())
         {
         case BinaryInst::Op_Add:
-            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_add,inst);
+        {
+            if(inst->GetType()==IntType::NewIntTypeGet())
+                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_add,inst);
+            else if(inst->GetType()==FloatType::NewFloatTypeGet())
+                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fadd_s,inst);
             break;
+        }
         case BinaryInst::Op_Sub:
-            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_sub,inst);
+        {
+            if(inst->GetType()==IntType::NewIntTypeGet())
+                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_sub,inst);
+            else if(inst->GetType()==FloatType::NewFloatTypeGet())
+                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fsub_s,inst);
             break;
+        }
         case BinaryInst::Op_Mul:
-            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_mul,inst);
+        {
+            if(inst->GetType()==IntType::NewIntTypeGet())
+                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_mul,inst);
+            else if(inst->GetType()==FloatType::NewFloatTypeGet())
+                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fmul_s,inst);
             break;
+        }
         case BinaryInst::Op_Div:
-            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_div,inst);
+        {
+            if(inst->GetType()==IntType::NewIntTypeGet())
+                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_div,inst);
+            else if(inst->GetType()==FloatType::NewFloatTypeGet())
+                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fdiv_s,inst);
             break;
+        }
         case BinaryInst::Op_Mod:
-            result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_rem,inst);
+        {
+            if(inst->GetType()==IntType::NewIntTypeGet())result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_rem,inst);
+            else assert("Illegal!");
             break;
+        }
         default:
             break;
         }
-        /// @todo convert to addi
-        /// @todo convert to float
     }
 }
 
@@ -151,15 +171,13 @@ void InstLowering(GetElementPtrInst* inst){
             else assert("?Impossible Here");
         }
         else{
-            /// @warning Dangerous Conversion Here
-            auto mul=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_mul,index,ConstIRInt::GetNewConstant((int)size));
-            baseptr=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_add,baseptr,mul);
+            auto mul=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_mulw,index,ConstSize_t::GetNewConstant(size));
+            baseptr=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_addw,baseptr,mul);
         }
         hasSubtype=dynamic_cast<HasSubType*>(hasSubtype->GetSubType());
     }
     if(offset!=0)
-        /// @warning Dangerous Conversion
-        auto add=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_add,baseptr,ConstIRInt::GetNewConstant((int)offset));
+        auto add=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_addw,baseptr,ConstSize_t::GetNewConstant(offset));
 }
 
 void InstLowering(User* inst){
