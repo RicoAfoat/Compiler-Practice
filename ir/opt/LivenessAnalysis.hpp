@@ -15,6 +15,7 @@ class LivenessAnalysis
     public:
     std::map<BasicBlock*, std::set<Value*>> BlockLivein;
     std::map<BasicBlock*, std::set<Value*>> BlockLiveout;
+    void RunOnInst(User*, std::set<Value*>&);
     void RunOnFunction();
     void PrintPass();
     LivenessAnalysis(Function* f) : F(f), BlockLivein{}, BlockLiveout{}, UnChanged{} {};
