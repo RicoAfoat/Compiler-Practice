@@ -1,5 +1,6 @@
 #include "RISCVRegisterAllocation.hpp"
 #include "LivenessAnalysis.hpp"
+#include <queue>
 
 class GraphColoring:public RegisterAllocation{
     void RIGConstruction(std::set<Value*>& LiveAtMoment){
@@ -21,8 +22,7 @@ class GraphColoring:public RegisterAllocation{
     }
 
     bool AllocaRegister(Function* func){
-        /// try k-coloring
-        
+        /// 整个图上选择度数小于
         return true;
     }
 
