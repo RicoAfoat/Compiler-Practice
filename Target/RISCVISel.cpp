@@ -15,33 +15,34 @@ void RISCVISel::InstLowering(AllocaInst* inst){
 
 void RISCVISel::InstLowering(StoreInst* inst){
     if(inst->GetOperand(0)->GetType()==IntType::NewIntTypeGet())
-        RISCVMIR::replace_with_mir_opcode(RISCVMIR::_sw,inst);
+        ctx(new RISCVMIR(RISCVMIR::_sw,inst));
     else if(inst->GetOperand(0)->GetType()==FloatType::NewFloatTypeGet())
-        RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fsw,inst);
+        ctx(new RISCVMIR(RISCVMIR::_fsw,inst));
     else assert("invalid store type");
 }
 
 void RISCVISel::InstLowering(LoadInst* inst){
     if(inst->GetOperand(0)->GetType()==IntType::NewIntTypeGet())
-        RISCVMIR::replace_with_mir_opcode(RISCVMIR::_lw,inst);
+        ctx(new RISCVMIR(RISCVMIR::_lw,inst));
     else if(inst->GetOperand(0)->GetType()==FloatType::NewFloatTypeGet())
-        RISCVMIR::replace_with_mir_opcode(RISCVMIR::_flw,inst);
+        ctx(new RISCVMIR(RISCVMIR::_flw,inst));
     else assert("invalid load type");
 }
 
 void RISCVISel::InstLowering(FPTSI* inst){
-    RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fcvt_w_s,inst);
+    ctx(new RISCVMIR(RISCVMIR::_fcvt_w_s,inst));
 }
 
 void RISCVISel::InstLowering(SITFP* inst){
-    RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fcvt_s_w,inst);
+    ctx(new RISCVMIR(RISCVMIR::_fcvt_s_w,inst));
 }
 
 void RISCVISel::InstLowering(UnCondInst* inst){
-    RISCVMIR::replace_with_mir_opcode(RISCVMIR::_j,inst);
+    ctx(new RISCVMIR(RISCVMIR::_j,inst));
 }
 
 void RISCVISel::InstLowering(CondInst* inst){
+    #define M(x) ctx.mapping(x)
     auto cond=inst->GetOperand(0)->as<BinaryInst>();
     assert(cond!=nullptr&&"Invalid Condition");
     assert((cond->GetOperand(0)->GetType()==IntType::NewIntTypeGet()||cond->GetOperand(0)->GetType()==FloatType::NewFloatTypeGet())&&"Invalid Condition Type");
@@ -50,43 +51,48 @@ void RISCVISel::InstLowering(CondInst* inst){
         {
             case BinaryInst::Op_L:
             {
-                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_blt,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
-                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace({fi,se});
+                auto fi=new RISCVMIR(RISCVMIR::_blt,M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1)));
+                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                ctx(fi);
+                ctx(se);
                 break;
             }
             case BinaryInst::Op_LE:
             {
-                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_bge,cond->GetOperand(1),cond->GetOperand(0),inst->GetOperand(1));
-                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
+                auto fi=new RISCVMIR(RISCVMIR::_bge,M(cond->GetOperand(1)),M(cond->GetOperand(0)),M(inst->GetOperand(1)));
+                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
                 break;
             }
             case BinaryInst::Op_G:
             {
-                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_blt,cond->GetOperand(1),cond->GetOperand(0),inst->GetOperand(1));
-                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace({fi,se});
+                auto fi=new RISCVMIR(RISCVMIR::_blt,M(cond->GetOperand(1)),M(cond->GetOperand(0)),M(inst->GetOperand(1)));
+                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                ctx(fi);
+                ctx(se);
                 break;
             }
             case BinaryInst::Op_GE:
             {
-                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_bge,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
-                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace({fi,se});
+                auto fi=new RISCVMIR(RISCVMIR::_bge,M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1)));
+                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                ctx(fi);
+                ctx(se);
                 break;
             }
             case BinaryInst::Op_E:
             {    
-                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_beq,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
-                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace({fi,se});
+                auto fi=new RISCVMIR(RISCVMIR::_beq,M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1)));
+                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                ctx(fi);
+                ctx(se);
                 break;
             }
             case BinaryInst::Op_NE:
             {
-                auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_bne,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
-                auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace({fi,se});
+                auto fi=new RISCVMIR(RISCVMIR::_bne,M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1)));
+                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                ctx(fi);
+                ctx(se);
                 break;
             }
             case BinaryInst::Op_Or:
@@ -106,6 +112,7 @@ void RISCVISel::InstLowering(CondInst* inst){
     else{
         assert("Not IMPL");
     }
+    #undef M
 }
 
 void RISCVISel::InstLowering(BinaryInst* inst){
@@ -117,42 +124,42 @@ void RISCVISel::InstLowering(BinaryInst* inst){
         case BinaryInst::Op_Add:
         {
             if(inst->GetType()==IntType::NewIntTypeGet())
-                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_add,inst);
+                ctx(new RISCVMIR(RISCVMIR::_add,inst));
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
-                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fadd_s,inst);
+                ctx(new RISCVMIR(RISCVMIR::_fadd_s,inst));
             else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Sub:
         {
             if(inst->GetType()==IntType::NewIntTypeGet())
-                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_sub,inst);
+                ctx(new RISCVMIR(RISCVMIR::_sub,inst));
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
-                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fsub_s,inst);
+                ctx(new RISCVMIR(RISCVMIR::_fsub_s,inst));
             else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Mul:
         {
             if(inst->GetType()==IntType::NewIntTypeGet())
-                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_mul,inst);
+                ctx(new RISCVMIR(RISCVMIR::_mul,inst));
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
-                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fmul_s,inst);
+                ctx(new RISCVMIR(RISCVMIR::_fmul_s,inst));
             else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Div:
         {
             if(inst->GetType()==IntType::NewIntTypeGet())
-                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_div,inst);
+                ctx(new RISCVMIR(RISCVMIR::_div,inst));
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
-                result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_fdiv_s,inst);
+                ctx(new RISCVMIR(RISCVMIR::_fdiv_s,inst));
             else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Mod:
         {
-            if(inst->GetType()==IntType::NewIntTypeGet())result=RISCVMIR::replace_with_mir_opcode(RISCVMIR::_rem,inst);
+            if(inst->GetType()==IntType::NewIntTypeGet())ctx(new RISCVMIR(RISCVMIR::_rem,inst));
             else assert("Illegal!");
             break;
         }
@@ -163,11 +170,12 @@ void RISCVISel::InstLowering(BinaryInst* inst){
 }
 
 void RISCVISel::InstLowering(GetElementPtrInst* inst){
+    #define M(x) ctx.mapping(x)
     // cast it to multiple add and mul first 
     /// @todo 循环不变量外提很重要了这里，之后会做一个循环不变量外提的优化
     int limi=inst->Getuselist().size();
-    auto baseptr=inst->GetOperand(0);
-    auto hasSubtype=dynamic_cast<HasSubType*>(baseptr->GetType());
+    auto baseptr=M(inst->GetOperand(0));
+    auto hasSubtype=dynamic_cast<HasSubType*>(inst->GetOperand(0)->GetType());
     size_t offset=0;
     for(int i=1;i<limi;i++){
         // just make sure
@@ -180,13 +188,17 @@ void RISCVISel::InstLowering(GetElementPtrInst* inst){
             else assert("?Impossible Here");
         }
         else{
-            auto mul=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_mulw,index,ConstSize_t::GetNewConstant(size));
-            baseptr=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_addw,baseptr,mul);
+            auto mul=new RISCVMIR(RISCVMIR::_mulw,ctx.createVReg(RISCVType::riscv_ptr),M(index),M(ConstSize_t::GetNewConstant(size)));
+            ctx(mul);
+            auto temp=ctx.createVReg(riscv_ptr);
+            ctx(new RISCVMIR(RISCVMIR::_addw,temp,baseptr,mul->GetOperand(0)));
+            baseptr=temp;
         }
         hasSubtype=dynamic_cast<HasSubType*>(hasSubtype->GetSubType());
     }
     if(offset!=0)
-        auto add=new RISCVMIR(RISCVPTR::NewRISCVPTRGet(),RISCVMIR::RISCVISA::_addw,baseptr,ConstSize_t::GetNewConstant(offset));
+        ctx(new RISCVMIR(RISCVMIR::_addw,baseptr,M(ConstSize_t::GetNewConstant(offset))));
+    #undef M
 }
 
 void RISCVISel::InstLowering(User* inst){

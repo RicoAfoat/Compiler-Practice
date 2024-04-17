@@ -10,6 +10,7 @@ class RISCVMIR;
 class RISCVMIR:public list_node<RISCVBasicBlock,RISCVMIR>
 {
     RISCVType tp_enum;
+    std::vector<RISCVMOperand*> operands;
     public:
     enum RISCVISA{
         BeginShift,
@@ -140,11 +141,14 @@ class RISCVMIR:public list_node<RISCVBasicBlock,RISCVMIR>
         EndFloat,
     }opcode;
     /// @note def in the front while use in the back
-    std::vector<RISCVMOperand> operands;
+    RISCVMIR(RISCVISA,User* inst);
+    RISCVMIR(RISCVISA,RISCVMOperand*...);
+    RISCVMOperand* GetOperand(int);
     inline RISCVISA& GetOpcode(){return opcode;};
     bool isArithmetic(){
         return (EndArithmetic>opcode&&opcode>BeginArithmetic)|(EndFloatArithmetic>opcode&&opcode>BeginFloatArithmetic);
     }
+
 };
 
 class RISCVBasicBlock:public RISCVMOperand,mylist<RISCVBasicBlock,RISCVMIR>,list_node<RISCVFunction,RISCVBasicBlock>

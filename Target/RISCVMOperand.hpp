@@ -11,3 +11,10 @@ class RISCVMOperand{
         return dynamic_cast<T*>(this);
     }
 };
+
+/// @note A wrapper for the constant data
+class Imm:public RISCVMOperand{
+    RISCVType tp;
+    ConstantData data;
+    public:
+};
