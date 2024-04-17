@@ -1,3 +1,4 @@
+#pragma once
 #include "CFG.hpp"
 #include "RISCVType.hpp"
 class RISCVMIR:public User
@@ -134,7 +135,13 @@ class RISCVMIR:public User
     }opcode;
     /// @todo A new Constructor to replace this with a Type* parameter and a set of operand to be added in the constructor 
     // RISCVMIR(RISCVISA):User(){};
-    RISCVMIR(Type*,RISCVISA,Operand...);
+    RISCVMIR(Type*,RISCVISA);
+    template<typename... Operands>
+    RISCVMIR(Type* _tp,RISCVISA _opcode,Operands... args):User(_tp),opcode(_opcode){
+        tp_enum=RISCVTyper(tp);
+        (add_use(args),...);
+        return;
+    }
     inline RISCVISA& GetOpcode(){return opcode;};
     virtual void print(){
         /// @todo 

@@ -2,7 +2,7 @@
 #include "RISCVISel.hpp"
 
 bool RISCVModuleLowering::run(Module* m){
-    LoweringGlobalValue(m);
+    // LoweringGlobalValue(m);
     // start lowering function
     RISCVFunctionLowering funclower;
     auto& funcS=m->GetFuncTion();

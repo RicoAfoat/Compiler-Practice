@@ -8,10 +8,9 @@ bool RISCVISel::run(Function* m){
     return true;
 }
 
-/// gathering all allocainsts
+/// @note gathering all allocainsts, will transfer it to context
 void RISCVISel::InstLowering(AllocaInst* inst){
-    ctx.add_localvar(inst);
-    inst->EraseFromParent();
+    // ctx.add_localvar(inst);
 }
 
 void RISCVISel::InstLowering(StoreInst* inst){
@@ -53,7 +52,7 @@ void RISCVISel::InstLowering(CondInst* inst){
             {
                 auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_blt,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
                 auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace(fi,se);
+                inst->Replace({fi,se});
                 break;
             }
             case BinaryInst::Op_LE:
@@ -66,28 +65,28 @@ void RISCVISel::InstLowering(CondInst* inst){
             {
                 auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_blt,cond->GetOperand(1),cond->GetOperand(0),inst->GetOperand(1));
                 auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace(fi,se);
+                inst->Replace({fi,se});
                 break;
             }
             case BinaryInst::Op_GE:
             {
                 auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_bge,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
                 auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace(fi,se);
+                inst->Replace({fi,se});
                 break;
             }
             case BinaryInst::Op_E:
             {    
                 auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_beq,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
                 auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace(fi,se);
+                inst->Replace({fi,se});
                 break;
             }
             case BinaryInst::Op_NE:
             {
                 auto fi=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_bne,cond->GetOperand(0),cond->GetOperand(1),inst->GetOperand(1));
                 auto se=new RISCVMIR(VoidType::NewVoidTypeGet(),RISCVMIR::_j,inst->GetOperand(2));
-                inst->Replace(fi,se);
+                inst->Replace({fi,se});
                 break;
             }
             case BinaryInst::Op_Or:
@@ -111,7 +110,7 @@ void RISCVISel::InstLowering(CondInst* inst){
 
 void RISCVISel::InstLowering(BinaryInst* inst){
     if(inst->getopration()<BinaryInst::Op_And){
-        if(inst->ConstCalc())return;
+        // if(inst->ConstCalc())return;
         RISCVMIR* result;
         switch (inst->getopration())
         {

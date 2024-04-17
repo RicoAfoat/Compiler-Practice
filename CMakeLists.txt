@@ -6,6 +6,7 @@ set(CMAKE_BUILD_TYPE "Debug")
 
 project(SYSY-compiler VERSION 0.1.0 LANGUAGES C CXX)
 add_definitions(-DSYSY_ENABLE_MIDDLE_END)
+add_definitions(-DSYSY_ENABLE_BACKEND)
 
 include(CTest)
 enable_testing()
@@ -20,14 +21,16 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/yacc)
 add_subdirectory(${PROJECT_SOURCE_DIR}/ir)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/backend)
+add_subdirectory(${PROJECT_SOURCE_DIR}/Target)
 add_subdirectory(${PROJECT_SOURCE_DIR}/test_infrastructure)
 
-target_link_libraries(SYSY-compiler Yacc Lib Backend opt Analysis)
+target_link_libraries(SYSY-compiler Yacc Lib Backend opt Analysis Target)
 
 target_include_directories(SYSY-compiler PRIVATE ${PROJECT_SOURCE_DIR}/yacc)
 target_include_directories(SYSY-compiler PRIVATE ${PROJECT_SOURCE_DIR}/lib)
 target_include_directories(SYSY-compiler PRIVATE ${PROJECT_SOURCE_DIR}/backend)
 target_include_directories(SYSY-compiler PRIVATE ${PROJECT_SOURCE_DIR}/ir)
+target_include_directories(SYSY-compiler PRIVATE ${PROJECT_SOURCE_DIR}/Target)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

@@ -4,6 +4,7 @@
 #include "parser.hpp"
 #include <fstream>
 #include <getopt.h>
+#include "RISCVLowering.hpp"
 extern FILE *yyin;
 extern int optind, opterr, optopt;
 extern char *optargi;
@@ -26,7 +27,7 @@ static struct option long_options[] = {
 int main(int argc, char **argv) {
   std::string output_path = argv[1];
   output_path += ".ll";
-  copyFile("runtime.ll", output_path);
+  // copyFile("runtime.ll", output_path);
   freopen(output_path.c_str(), "a", stdout);
   yyin = fopen(argv[1], "r");
   yy::parser parse;
@@ -71,11 +72,14 @@ int main(int argc, char **argv) {
   pass_manager->InitPass();
   #endif
   #ifdef SYSY_ENABLE_BACKEND
-  std::cout << std::endl;
-  AsmPrinter asmPrinter = AsmPrinter(argv[1], &Singleton<Module>());
-  asmPrinter.printAsm();
+  auto module_lowering=RISCVModuleLowering();
+  module_lowering.run(&Singleton<Module>());
+  // std::cout << std::endl;
+  // AsmPrinter asmPrinter = AsmPrinter(argv[1], &Singleton<Module>());
+  // asmPrinter.printAsm();
   #else
-  // Singleton<Module>().Test();
+  copyFile("runtime.ll", output_path);
+  Singleton<Module>().Test();
   #endif
   
   return 0;

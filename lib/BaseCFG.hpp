@@ -98,7 +98,9 @@ class Value
     int GetUserListSize(){return GetUserlist().GetSize();}
     int BelongsToExp;
     template<typename T>
-    T* as();
+    inline T* as(){
+        return dynamic_cast<T*>(this);
+    };
 };
 using Operand=Value*;
 // class Constant:public User
@@ -125,7 +127,7 @@ class User:public Value,public list_node<BasicBlock,User>
     void RSUW(int,Operand);
     /// @short a total replace used by backend
     /// @details RAUW, ClearRelation, Replace in BasicBlock and call memory delete
-    void Replace(Operand...);
+    void Replace(std::initializer_list<User*>);
     bool LiveOut();
     Operand GetOperand(int)const;
 };
@@ -169,10 +171,10 @@ class ConstIRFloat:public ConstantData
 class ConstSize_t:public ConstantData
 {
     size_t val;
-    ConstSize_t(size_t);
+    ConstSize_t(size_t _val);
     public:
-    static ConstSize_t* GetNewConstant(size_t=0);
-    size_t GetVal();
+    static ConstSize_t* GetNewConstant(size_t val=0);
+    size_t GetVal(){return val;};
 };
 
 // 出现了我直接吃

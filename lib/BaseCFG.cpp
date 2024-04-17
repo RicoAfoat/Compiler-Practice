@@ -238,6 +238,18 @@ void User::RSUW(int num,Operand val){
   val->add_user(uselist[num].get());
 }
 
+Operand User::GetOperand(int index)const{
+  return uselist[index]->GetValue();
+}
+
+void User::Replace(std::initializer_list<User*> args){
+  assert(GetUserlist().is_empty()&&"Userlist must be empty!");
+  auto it=BasicBlock::iterator(this);
+  for(User* arg:args)
+    it.insert_before(arg);
+  delete this;
+}
+
 ConstantData::ConstantData(Type *_tp) : Value(_tp) {}
 
 ConstIRBoolean::ConstIRBoolean(bool _val)
@@ -296,3 +308,12 @@ ConstPtr *ConstPtr::GetNewConstant(Type *_tp) {
   static ConstPtr *const_ptr = new ConstPtr(_tp);
   return const_ptr;
 }
+
+ConstSize_t::ConstSize_t(size_t _val):ConstantData(RISCVPTR::NewRISCVPTRGet()),val(_val){}
+
+ConstSize_t* ConstSize_t::GetNewConstant(size_t val){
+  static std::map<size_t,ConstSize_t*> size_t_const_map;
+  if(size_t_const_map.find(val)==size_t_const_map.end())
+      size_t_const_map[val]=new ConstSize_t(val);
+  return size_t_const_map[val];
+};

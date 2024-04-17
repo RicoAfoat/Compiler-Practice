@@ -3,7 +3,7 @@
 #include "RISCVFrameContext.hpp"
 
 class RISCVModuleLowering:BackEndPass<Module>{
-    bool LoweringGlobalValue(Module*);
+    // bool LoweringGlobalValue(Module*);
     public:
     bool run(Module*);
 };

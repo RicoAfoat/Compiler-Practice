@@ -107,3 +107,12 @@ void ArrayType::print(){
     subtype->print();
     std::cout<<"]";
 }
+
+RISCVPTR* RISCVPTR::NewRISCVPTRGet(){
+    static RISCVPTR single;
+    return &single;
+}
+
+void RISCVPTR::print(){
+    assert("NOT SUPPORTED");
+}
