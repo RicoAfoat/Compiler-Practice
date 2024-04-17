@@ -1,4 +1,4 @@
-#include "CFG.hpp"
+#pragma once
 #include "BackendPass.hpp"
 
 class RegisterAllocation:public BackEndPass<Function>{

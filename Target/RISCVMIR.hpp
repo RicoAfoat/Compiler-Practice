@@ -1,7 +1,13 @@
 #pragma once
 #include "CFG.hpp"
-#include "RISCVType.hpp"
-class RISCVMIR:public User
+#include "RISCVRegister.hpp"
+
+class RISCVFunction;
+class RISCVBasicBlock;
+class RISCVMIR;
+
+/// @note RISCVMIR no longer is an MOperand for SSA is destructed
+class RISCVMIR:public list_node<RISCVBasicBlock,RISCVMIR>
 {
     RISCVType tp_enum;
     public:
@@ -133,22 +139,26 @@ class RISCVMIR:public User
         EndFloatArithmetic,
         EndFloat,
     }opcode;
-    /// @todo A new Constructor to replace this with a Type* parameter and a set of operand to be added in the constructor 
-    // RISCVMIR(RISCVISA):User(){};
-    RISCVMIR(Type*,RISCVISA);
-    template<typename... Operands>
-    RISCVMIR(Type* _tp,RISCVISA _opcode,Operands... args):User(_tp),opcode(_opcode){
-        tp_enum=RISCVTyper(tp);
-        (add_use(args),...);
-        return;
-    }
+    /// @note def in the front while use in the back
+    std::vector<RISCVMOperand> operands;
     inline RISCVISA& GetOpcode(){return opcode;};
-    virtual void print(){
-        /// @todo 
-        assert(0);
-    }
-    static RISCVMIR* replace_with_mir_opcode(RISCVISA,User*);
     bool isArithmetic(){
         return (EndArithmetic>opcode&&opcode>BeginArithmetic)|(EndFloatArithmetic>opcode&&opcode>BeginFloatArithmetic);
     }
+};
+
+class RISCVBasicBlock:public RISCVMOperand,mylist<RISCVBasicBlock,RISCVMIR>,list_node<RISCVFunction,RISCVBasicBlock>
+{    
+    //std::vector<RISCVBasicBlock*> preds;
+    //std::vector<RISCVBasicBlock*> succs;
+    public:
+};
+
+/// should we save return type here? I suppose not.
+class RISCVFunction:public RISCVMOperand,mylist<RISCVFunction,RISCVBasicBlock>{
+    /// originally return type
+    Type* ret_type;
+    /// @todo FrameContext here
+    RISCVBasicBlock* entry;
+    public:
 };

@@ -1,6 +1,7 @@
+#pragma once
 #include "BackendPass.hpp"
 #include "CFG.hpp"
-#include "RISCVFrameContext.hpp"
+#include "RISCVContext.hpp"
 
 class RISCVISel:public BackEndPass<Function>{
     RISCVLoweringContext& ctx;

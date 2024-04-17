@@ -4,7 +4,7 @@
 bool RISCVModuleLowering::run(Module* m){
     // LoweringGlobalValue(m);
     // start lowering function
-    RISCVFunctionLowering funclower;
+    RISCVFunctionLowering funclower(ctx);
     auto& funcS=m->GetFuncTion();
     for(auto &func:funcS){
         if(funclower.run(func.get())){
@@ -12,19 +12,22 @@ bool RISCVModuleLowering::run(Module* m){
             std::cerr<<"FUNC Lowering failed\n";
         }
     }
+    return false;
 }
 
 bool RISCVFunctionLowering::run(Function* m){
+    /// @note after isel, all insts will be User with an opcode. Only call, ret is not dealt with after this 
+    /// @todo deal with alloca and imm
     RISCVISel isel(ctx);
     isel.run(m);
-    // only imm, call, ret is not dealt with after this
-    // if it is a legal imm, we should add i suffix
-    // all we should alloca register to it and generate li
-    
-    // legalize imm here, if it is illegal, we treat it as a vreg. Generate li where is is used when spilled in RA, if is not spilled to stack, we generate li in prologue. Or we generate li in the beginning of the function, and the see if it spilled or not.
+    /// @todo a scheduler can be added here, before or when emitting code to 3-address code
+    /// @note This is destory SSA form to 3-address code with mixture of phy and vir regs
+    InstrEmitter emitter(ctx);
+    emitter.run(m);
 
     // Register Allocation
 
 
     // Instruction Schedule
+    return false;
 }

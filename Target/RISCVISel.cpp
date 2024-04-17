@@ -192,6 +192,15 @@ void RISCVISel::InstLowering(GetElementPtrInst* inst){
 void RISCVISel::InstLowering(User* inst){
     if(auto store=dynamic_cast<StoreInst*>(inst))InstLowering(store);
     else if(auto load=dynamic_cast<LoadInst*>(inst))InstLowering(load);
+    else if(auto alloca=dynamic_cast<AllocaInst*>(inst))InstLowering(alloca);
+    else if(auto fptsi=dynamic_cast<FPTSI*>(inst))InstLowering(fptsi);
+    else if(auto sitfp=dynamic_cast<SITFP*>(inst))InstLowering(sitfp);
+    else if(auto uncond=dynamic_cast<UnCondInst*>(inst))InstLowering(uncond);
+    else if(auto cond=dynamic_cast<CondInst*>(inst))InstLowering(cond);
+    else if(auto binary=dynamic_cast<BinaryInst*>(inst))InstLowering(binary);
+    else if(auto gep=dynamic_cast<GetElementPtrInst*>(inst))InstLowering(gep);
+    else if(auto phi=dynamic_cast<PhiInst*>(inst));
+    else assert("Invalid Inst Type");
 }
 
 RISCVISel::RISCVISel(RISCVLoweringContext& _ctx):ctx(_ctx){}
