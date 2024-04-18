@@ -11,6 +11,7 @@ class NamedMOperand:public RISCVMOperand{
 /// @brief A ptr type to some mem address
 class RISCVObject:public NamedMOperand{
     Type* tp;
+    protected:
     bool local;
     public:
     RISCVObject(Type*,std::string);
