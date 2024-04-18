@@ -26,7 +26,5 @@ bool RISCVFunctionLowering::run(Function* m){
 
     // Register Allocation
 
-
-    // Instruction Schedule
     return false;
 }

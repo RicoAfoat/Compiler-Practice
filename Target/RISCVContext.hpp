@@ -13,10 +13,7 @@ class RISCVLoweringContext{
     /// @todo should we add an entry here? Or we should output functions in any order?
     RISCVFunction* cur_func;
     RISCVBasicBlock* cur_mbb;
-    public:  
-    void operator()(RISCVMIR*);
-    void operator()(RISCVBasicBlock*);
-    void operator()(RISCVFunction*);
+
     /// @note
     /// case 1: user    : return a vreg of correndsponding type
         /// case 1.1 alloca : return an RISCVFrameObject, and insert it to current function   
@@ -24,6 +21,12 @@ class RISCVLoweringContext{
     /// case 3: consts  : return a imm
     /// case 4: function: return a machine function
     /// strategy: when its not in the map, create a new one
+    /// This works as a factory but is not responsible for delete yet 
+    RISCVMOperand* Create(Value*);
+    public:  
+    void operator()(RISCVMIR*);
+    void operator()(RISCVBasicBlock*);
+    void operator()(RISCVFunction*);
     RISCVMOperand* mapping(Value*);
     VirRegister* createVReg(RISCVType);
 };

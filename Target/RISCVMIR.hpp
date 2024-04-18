@@ -151,18 +151,20 @@ class RISCVMIR:public list_node<RISCVBasicBlock,RISCVMIR>
 
 };
 
-class RISCVBasicBlock:public RISCVMOperand,mylist<RISCVBasicBlock,RISCVMIR>,list_node<RISCVFunction,RISCVBasicBlock>
+class RISCVBasicBlock:public NamedMOperand,public mylist<RISCVBasicBlock,RISCVMIR>,public list_node<RISCVFunction,RISCVBasicBlock>
 {    
-    //std::vector<RISCVBasicBlock*> preds;
-    //std::vector<RISCVBasicBlock*> succs;
     public:
+    RISCVBasicBlock(std::string);
 };
 
 /// should we save return type here? I suppose not.
-class RISCVFunction:public RISCVGlobalObject,mylist<RISCVFunction,RISCVBasicBlock>{
+class RISCVFunction:public RISCVGlobalObject,public mylist<RISCVFunction,RISCVBasicBlock>{
     /// originally return type
     /// @todo FrameContext here
     RISCVBasicBlock* entry;
-    std::vector<RISCVFrameObject> frame;
+    using FOBJPTR=std::unique_ptr<RISCVFrameObject>;
+    std::vector<FOBJPTR> frame;
     public:
+    RISCVFunction(std::string name);
+    std::vector<FOBJPTR>& GetFrameObjects();
 };

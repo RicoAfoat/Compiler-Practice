@@ -5,6 +5,7 @@
 class RISCVMOperand{
     RISCVType tp;
     public:
+    RISCVMOperand(RISCVType);
     RISCVType GetType();
     virtual bool isReg();
     template<typename T>
@@ -16,6 +17,8 @@ class RISCVMOperand{
 /// @note A wrapper for the constant data
 /// @note should be legalize later 
 class Imm:public RISCVMOperand{
-    ConstantData data;    
+    ConstantData* data;    
+    Imm(RISCVType,ConstantData*);
     public:
+    static Imm* GetImm(ConstantData*);
 };

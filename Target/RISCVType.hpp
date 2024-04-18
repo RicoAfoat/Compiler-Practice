@@ -2,6 +2,8 @@
 #include "Type.hpp"
 #include <cassert>
 
+/// riscv_ptr   :   a pointer to some address() 
+/// riscv_none  :   ?
 enum RISCVType{
     riscv_i32,riscv_float32,riscv_ptr,riscv_none
 };
