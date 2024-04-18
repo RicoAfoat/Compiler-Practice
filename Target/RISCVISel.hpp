@@ -15,6 +15,7 @@ class RISCVISel:public BackEndPass<Function>{
     void InstLowering(CondInst*);
     void InstLowering(BinaryInst*);
     void InstLowering(GetElementPtrInst*);
+    void InstLowering(PhiInst*);
     public:
     RISCVISel(RISCVLoweringContext&);
     bool run(Function*);

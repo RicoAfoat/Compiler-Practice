@@ -2,15 +2,16 @@
 #include "RISCVMIR.hpp"
 
 bool RISCVISel::run(Function* m){
-    for(auto i:*m)
+    for(auto i:*m){
+        ctx(ctx.mapping(i)->as<RISCVBasicBlock>());
         for(auto inst:*i)
             InstLowering(inst);
+    }
     return true;
 }
 
-/// @note gathering all allocainsts, will transfer it to context
 void RISCVISel::InstLowering(AllocaInst* inst){
-    // ctx.add_localvar(inst);
+    ctx.mapping(inst);
 }
 
 void RISCVISel::InstLowering(StoreInst* inst){
@@ -201,6 +202,12 @@ void RISCVISel::InstLowering(GetElementPtrInst* inst){
     #undef M
 }
 
+void RISCVISel::InstLowering(PhiInst* inst){
+    ///@note phi elimination here,
+    ///
+    assert("NOT IMPL");
+}
+
 void RISCVISel::InstLowering(User* inst){
     if(auto store=dynamic_cast<StoreInst*>(inst))InstLowering(store);
     else if(auto load=dynamic_cast<LoadInst*>(inst))InstLowering(load);
@@ -211,7 +218,7 @@ void RISCVISel::InstLowering(User* inst){
     else if(auto cond=dynamic_cast<CondInst*>(inst))InstLowering(cond);
     else if(auto binary=dynamic_cast<BinaryInst*>(inst))InstLowering(binary);
     else if(auto gep=dynamic_cast<GetElementPtrInst*>(inst))InstLowering(gep);
-    else if(auto phi=dynamic_cast<PhiInst*>(inst));
+    else if(auto phi=dynamic_cast<PhiInst*>(inst))InstLowering(phi);
     else assert("Invalid Inst Type");
 }
 

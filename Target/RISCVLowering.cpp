@@ -18,12 +18,11 @@ bool RISCVModuleLowering::run(Module* m){
 bool RISCVFunctionLowering::run(Function* m){
     /// @note after isel, all insts will be User with an opcode. Only call, ret is not dealt with after this 
     /// @todo deal with alloca and imm
-    RISCVISel isel(ctx);
-    isel.run(m);
     /// @todo a scheduler can be added here, before or when emitting code to 3-address code
     /// @note This is destory SSA form to 3-address code with mixture of phy and vir regs
-    InstrEmitter emitter(ctx);
-    emitter.run(m);
+    ctx(ctx.mapping(m)->as<RISCVFunction>());
+    RISCVISel isel(ctx);
+    isel.run(m);
 
     // Register Allocation
 

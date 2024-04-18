@@ -1,5 +1,6 @@
 #pragma once
 #include "RISCVType.hpp"
+#include "BaseCFG.hpp"
 /// @brief  Just need a type currently
 class RISCVMOperand{
     RISCVType tp;
@@ -13,8 +14,8 @@ class RISCVMOperand{
 };
 
 /// @note A wrapper for the constant data
+/// @note should be legalize later 
 class Imm:public RISCVMOperand{
-    RISCVType tp;
-    ConstantData data;
+    ConstantData data;    
     public:
 };

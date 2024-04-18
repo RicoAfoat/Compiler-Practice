@@ -1,6 +1,6 @@
 #pragma once
 #include "CFG.hpp"
-#include "RISCVRegister.hpp"
+#include "RISCVFrameContext.hpp"
 
 class RISCVFunction;
 class RISCVBasicBlock;
@@ -143,7 +143,7 @@ class RISCVMIR:public list_node<RISCVBasicBlock,RISCVMIR>
     /// @note def in the front while use in the back
     RISCVMIR(RISCVISA,User* inst);
     RISCVMIR(RISCVISA,RISCVMOperand*...);
-    RISCVMOperand* GetOperand(int);
+    RISCVMOperand*& GetOperand(int);
     inline RISCVISA& GetOpcode(){return opcode;};
     bool isArithmetic(){
         return (EndArithmetic>opcode&&opcode>BeginArithmetic)|(EndFloatArithmetic>opcode&&opcode>BeginFloatArithmetic);
@@ -159,10 +159,10 @@ class RISCVBasicBlock:public RISCVMOperand,mylist<RISCVBasicBlock,RISCVMIR>,list
 };
 
 /// should we save return type here? I suppose not.
-class RISCVFunction:public RISCVMOperand,mylist<RISCVFunction,RISCVBasicBlock>{
+class RISCVFunction:public RISCVGlobalObject,mylist<RISCVFunction,RISCVBasicBlock>{
     /// originally return type
-    Type* ret_type;
     /// @todo FrameContext here
     RISCVBasicBlock* entry;
+    std::vector<RISCVFrameObject> frame;
     public:
 };
