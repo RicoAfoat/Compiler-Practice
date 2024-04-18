@@ -141,14 +141,15 @@ class RISCVMIR:public list_node<RISCVBasicBlock,RISCVMIR>
         EndFloat,
     }opcode;
     /// @note def in the front while use in the back
-    RISCVMIR(RISCVISA,User* inst);
-    RISCVMIR(RISCVISA,RISCVMOperand*...);
+    // RISCVMIR(RISCVISA,User* inst);
+    // RISCVMIR(RISCVISA,RISCVMOperand*...);
+    RISCVMIR(RISCVISA _isa):opcode(_isa){};
     RISCVMOperand*& GetOperand(int);
+    void AddOperand(RISCVMOperand*);
     inline RISCVISA& GetOpcode(){return opcode;};
     bool isArithmetic(){
         return (EndArithmetic>opcode&&opcode>BeginArithmetic)|(EndFloatArithmetic>opcode&&opcode>BeginFloatArithmetic);
     }
-
 };
 
 class RISCVBasicBlock:public NamedMOperand,public mylist<RISCVBasicBlock,RISCVMIR>,public list_node<RISCVFunction,RISCVBasicBlock>
@@ -160,11 +161,13 @@ class RISCVBasicBlock:public NamedMOperand,public mylist<RISCVBasicBlock,RISCVMI
 /// should we save return type here? I suppose not.
 class RISCVFunction:public RISCVGlobalObject,public mylist<RISCVFunction,RISCVBasicBlock>{
     /// originally return type
+    /// @todo some info like arguments doesn't need to store twice? 
+    Function* func;
     /// @todo FrameContext here
     RISCVBasicBlock* entry;
     using FOBJPTR=std::unique_ptr<RISCVFrameObject>;
     std::vector<FOBJPTR> frame;
     public:
-    RISCVFunction(std::string name);
+    RISCVFunction(Function*);
     std::vector<FOBJPTR>& GetFrameObjects();
 };

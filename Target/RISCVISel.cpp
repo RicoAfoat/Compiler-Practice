@@ -1,6 +1,20 @@
 #include "RISCVISel.hpp"
 #include "RISCVMIR.hpp"
 
+RISCVMIR* RISCVISel::Builder(RISCVMIR::RISCVISA _isa,User* inst){
+    auto minst=new RISCVMIR(_isa);
+    for(int i=0;i<inst->Getuselist().size();i++)
+        minst->AddOperand(ctx.mapping(inst->GetOperand(i)));
+    return minst;
+}
+
+RISCVMIR* RISCVISel::Builder(RISCVMIR::RISCVISA _isa,std::initializer_list<RISCVMOperand*> list){
+    auto minst=new RISCVMIR(_isa);
+    for(auto i:list)
+        minst->AddOperand(i);
+    return minst;
+}
+
 bool RISCVISel::run(Function* m){
     for(auto i:*m){
         ctx(ctx.mapping(i)->as<RISCVBasicBlock>());
@@ -16,30 +30,30 @@ void RISCVISel::InstLowering(AllocaInst* inst){
 
 void RISCVISel::InstLowering(StoreInst* inst){
     if(inst->GetOperand(0)->GetType()==IntType::NewIntTypeGet())
-        ctx(new RISCVMIR(RISCVMIR::_sw,inst));
+        ctx(Builder(RISCVMIR::_sw,inst));
     else if(inst->GetOperand(0)->GetType()==FloatType::NewFloatTypeGet())
-        ctx(new RISCVMIR(RISCVMIR::_fsw,inst));
+        ctx(Builder(RISCVMIR::_fsw,inst));
     else assert("invalid store type");
 }
 
 void RISCVISel::InstLowering(LoadInst* inst){
     if(inst->GetOperand(0)->GetType()==IntType::NewIntTypeGet())
-        ctx(new RISCVMIR(RISCVMIR::_lw,inst));
+        ctx(Builder(RISCVMIR::_lw,inst));
     else if(inst->GetOperand(0)->GetType()==FloatType::NewFloatTypeGet())
-        ctx(new RISCVMIR(RISCVMIR::_flw,inst));
+        ctx(Builder(RISCVMIR::_flw,inst));
     else assert("invalid load type");
 }
 
 void RISCVISel::InstLowering(FPTSI* inst){
-    ctx(new RISCVMIR(RISCVMIR::_fcvt_w_s,inst));
+    ctx(Builder(RISCVMIR::_fcvt_w_s,inst));
 }
 
 void RISCVISel::InstLowering(SITFP* inst){
-    ctx(new RISCVMIR(RISCVMIR::_fcvt_s_w,inst));
+    ctx(Builder(RISCVMIR::_fcvt_s_w,inst));
 }
 
 void RISCVISel::InstLowering(UnCondInst* inst){
-    ctx(new RISCVMIR(RISCVMIR::_j,inst));
+    ctx(Builder(RISCVMIR::_j,inst));
 }
 
 void RISCVISel::InstLowering(CondInst* inst){
@@ -52,46 +66,46 @@ void RISCVISel::InstLowering(CondInst* inst){
         {
             case BinaryInst::Op_L:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_blt,M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1)));
-                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                auto fi=Builder(RISCVMIR::_blt,{M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1))});
+                auto se=Builder(RISCVMIR::_j,{M(inst->GetOperand(2))});
                 ctx(fi);
                 ctx(se);
                 break;
             }
             case BinaryInst::Op_LE:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_bge,M(cond->GetOperand(1)),M(cond->GetOperand(0)),M(inst->GetOperand(1)));
-                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                auto fi=Builder(RISCVMIR::_bge,{M(cond->GetOperand(1)),M(cond->GetOperand(0)),M(inst->GetOperand(1))});
+                auto se=Builder(RISCVMIR::_j,{M(inst->GetOperand(2))});
                 break;
             }
             case BinaryInst::Op_G:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_blt,M(cond->GetOperand(1)),M(cond->GetOperand(0)),M(inst->GetOperand(1)));
-                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                auto fi=Builder(RISCVMIR::_blt,{M(cond->GetOperand(1)),M(cond->GetOperand(0)),M(inst->GetOperand(1))});
+                auto se=Builder(RISCVMIR::_j,{M(inst->GetOperand(2))});
                 ctx(fi);
                 ctx(se);
                 break;
             }
             case BinaryInst::Op_GE:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_bge,M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1)));
-                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                auto fi=Builder(RISCVMIR::_bge,{M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1))});
+                auto se=Builder(RISCVMIR::_j,{M(inst->GetOperand(2))});
                 ctx(fi);
                 ctx(se);
                 break;
             }
             case BinaryInst::Op_E:
             {    
-                auto fi=new RISCVMIR(RISCVMIR::_beq,M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1)));
-                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                auto fi=Builder(RISCVMIR::_beq,{M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1))});
+                auto se=Builder(RISCVMIR::_j,{M(inst->GetOperand(2))});
                 ctx(fi);
                 ctx(se);
                 break;
             }
             case BinaryInst::Op_NE:
             {
-                auto fi=new RISCVMIR(RISCVMIR::_bne,M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1)));
-                auto se=new RISCVMIR(RISCVMIR::_j,M(inst->GetOperand(2)));
+                auto fi=Builder(RISCVMIR::_bne,{M(cond->GetOperand(0)),M(cond->GetOperand(1)),M(inst->GetOperand(1))});
+                auto se=Builder(RISCVMIR::_j,{M(inst->GetOperand(2))});
                 ctx(fi);
                 ctx(se);
                 break;
@@ -125,42 +139,42 @@ void RISCVISel::InstLowering(BinaryInst* inst){
         case BinaryInst::Op_Add:
         {
             if(inst->GetType()==IntType::NewIntTypeGet())
-                ctx(new RISCVMIR(RISCVMIR::_add,inst));
+                ctx(Builder(RISCVMIR::_add,inst));
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
-                ctx(new RISCVMIR(RISCVMIR::_fadd_s,inst));
+                ctx(Builder(RISCVMIR::_fadd_s,inst));
             else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Sub:
         {
             if(inst->GetType()==IntType::NewIntTypeGet())
-                ctx(new RISCVMIR(RISCVMIR::_sub,inst));
+                ctx(Builder(RISCVMIR::_sub,inst));
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
-                ctx(new RISCVMIR(RISCVMIR::_fsub_s,inst));
+                ctx(Builder(RISCVMIR::_fsub_s,inst));
             else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Mul:
         {
             if(inst->GetType()==IntType::NewIntTypeGet())
-                ctx(new RISCVMIR(RISCVMIR::_mul,inst));
+                ctx(Builder(RISCVMIR::_mul,inst));
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
-                ctx(new RISCVMIR(RISCVMIR::_fmul_s,inst));
+                ctx(Builder(RISCVMIR::_fmul_s,inst));
             else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Div:
         {
             if(inst->GetType()==IntType::NewIntTypeGet())
-                ctx(new RISCVMIR(RISCVMIR::_div,inst));
+                ctx(Builder(RISCVMIR::_div,inst));
             else if(inst->GetType()==FloatType::NewFloatTypeGet())
-                ctx(new RISCVMIR(RISCVMIR::_fdiv_s,inst));
+                ctx(Builder(RISCVMIR::_fdiv_s,inst));
             else assert("Illegal!");
             break;
         }
         case BinaryInst::Op_Mod:
         {
-            if(inst->GetType()==IntType::NewIntTypeGet())ctx(new RISCVMIR(RISCVMIR::_rem,inst));
+            if(inst->GetType()==IntType::NewIntTypeGet())ctx(Builder(RISCVMIR::_rem,inst));
             else assert("Illegal!");
             break;
         }
@@ -189,16 +203,16 @@ void RISCVISel::InstLowering(GetElementPtrInst* inst){
             else assert("?Impossible Here");
         }
         else{
-            auto mul=new RISCVMIR(RISCVMIR::_mulw,ctx.createVReg(RISCVType::riscv_ptr),M(index),M(ConstSize_t::GetNewConstant(size)));
+            auto mul=Builder(RISCVMIR::_mulw,{ctx.createVReg(RISCVType::riscv_ptr),M(index),M(ConstSize_t::GetNewConstant(size))});
             ctx(mul);
             auto temp=ctx.createVReg(riscv_ptr);
-            ctx(new RISCVMIR(RISCVMIR::_addw,temp,baseptr,mul->GetOperand(0)));
+            ctx(Builder(RISCVMIR::_addw,{temp,baseptr,mul->GetOperand(0)}));
             baseptr=temp;
         }
         hasSubtype=dynamic_cast<HasSubType*>(hasSubtype->GetSubType());
     }
     if(offset!=0)
-        ctx(new RISCVMIR(RISCVMIR::_addw,baseptr,M(ConstSize_t::GetNewConstant(offset))));
+        ctx(Builder(RISCVMIR::_addw,{baseptr,M(ConstSize_t::GetNewConstant(offset))}));
     #undef M
 }
 

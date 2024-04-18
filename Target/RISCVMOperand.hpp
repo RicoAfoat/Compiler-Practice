@@ -18,7 +18,7 @@ class RISCVMOperand{
 /// @note should be legalize later 
 class Imm:public RISCVMOperand{
     ConstantData* data;    
-    Imm(RISCVType,ConstantData*);
     public:
+    Imm(ConstantData*);
     static Imm* GetImm(ConstantData*);
 };

@@ -3,8 +3,11 @@
 #include "CFG.hpp"
 #include "RISCVContext.hpp"
 
+
 class RISCVISel:public BackEndPass<Function>{
     RISCVLoweringContext& ctx;
+    RISCVMIR* Builder(RISCVMIR::RISCVISA,User*);
+    RISCVMIR* Builder(RISCVMIR::RISCVISA,std::initializer_list<RISCVMOperand*>);
     void InstLowering(User*);
     void InstLowering(AllocaInst*);
     void InstLowering(StoreInst*);

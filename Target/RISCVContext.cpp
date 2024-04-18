@@ -2,7 +2,7 @@
 RISCVMOperand* RISCVLoweringContext::Create(Value* val){
     if(auto inst=dynamic_cast<User*>(val)){
         if(auto alloca=dynamic_cast<User*>(inst)){
-            auto frameobjs=cur_func->GetFrameObjects();
+            auto& frameobjs=cur_func->GetFrameObjects();
             frameobjs.emplace_back(std::make_unique<RISCVFrameObject>(alloca->GetType(),alloca->GetName()));
             return frameobjs.back().get();
         }
@@ -21,8 +21,8 @@ RISCVMOperand* RISCVLoweringContext::Create(Value* val){
     else if(val->isConst())
         return Imm::GetImm(val->as<ConstantData>());
     else if(auto func=dynamic_cast<Function*>(val))
-        return new RISCVFunction(func->GetName());
-    else assert("Can't be Used");
+        return new RISCVFunction(func);
+    assert(0&&"Can't be Used");
 }
 
 RISCVMOperand* RISCVLoweringContext::mapping(Value* val){
