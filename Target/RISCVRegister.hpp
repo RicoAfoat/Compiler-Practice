@@ -17,11 +17,14 @@ class PhyRegister:public Register{
         f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,f27,f28,f29,f30,f31
     }regenum;
     PhyRegister(PhyReg);
+    void print()final;
     bool isPhysical()final{return true;};
 };
 
 class VirRegister:public Register{
+    int counter;
     public:
     VirRegister(RISCVType);
+    void print()final;
     bool isPhysical()final{return false;};
 };

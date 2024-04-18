@@ -150,12 +150,14 @@ class RISCVMIR:public list_node<RISCVBasicBlock,RISCVMIR>
     bool isArithmetic(){
         return (EndArithmetic>opcode&&opcode>BeginArithmetic)|(EndFloatArithmetic>opcode&&opcode>BeginFloatArithmetic);
     }
+    void print();
 };
 
 class RISCVBasicBlock:public NamedMOperand,public mylist<RISCVBasicBlock,RISCVMIR>,public list_node<RISCVFunction,RISCVBasicBlock>
 {    
     public:
     RISCVBasicBlock(std::string);
+    void print()final;
 };
 
 /// should we save return type here? I suppose not.
@@ -170,4 +172,5 @@ class RISCVFunction:public RISCVGlobalObject,public mylist<RISCVFunction,RISCVBa
     public:
     RISCVFunction(Function*);
     std::vector<FOBJPTR>& GetFrameObjects();
+    void print()final;
 };

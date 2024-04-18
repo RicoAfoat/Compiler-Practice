@@ -19,3 +19,9 @@ Imm* Imm::GetImm(ConstantData* _data){
         mapping[_data]=std::make_unique<Imm>(_data);
     return mapping[_data].get();
 }
+
+void Imm::print(){
+    data->GetType()->print();
+    std::cout<<" ";
+    data->print();
+}

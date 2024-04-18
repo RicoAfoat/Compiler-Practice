@@ -8,6 +8,7 @@ class RISCVMOperand{
     RISCVMOperand(RISCVType);
     RISCVType GetType();
     virtual bool isReg();
+    virtual void print()=0;
     template<typename T>
     T* as(){
         return dynamic_cast<T*>(this);
@@ -21,4 +22,5 @@ class Imm:public RISCVMOperand{
     public:
     Imm(ConstantData*);
     static Imm* GetImm(ConstantData*);
+    void print()final;
 };

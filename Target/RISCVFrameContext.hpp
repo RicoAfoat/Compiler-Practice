@@ -6,12 +6,13 @@ class NamedMOperand:public RISCVMOperand{
     public:
     std::string& GetName();
     NamedMOperand(RISCVType,std::string);
+    void print()override;
 };
 
 /// @brief A ptr type to some mem address
 class RISCVObject:public NamedMOperand{
-    Type* tp;
     protected:
+    Type* tp;
     bool local;
     public:
     RISCVObject(Type*,std::string);
@@ -23,10 +24,12 @@ class RISCVFrameObject:public RISCVObject{
     size_t begin_addr_offsets;
     public:
     RISCVFrameObject(Type*,std::string);
+    void print()override;
 };
 
 /// @brief pointer to machine function or a machine global value 
 class RISCVGlobalObject:public RISCVObject{
     public:
     RISCVGlobalObject(Type*,std::string name);
+    void print()override;
 };
