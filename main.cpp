@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
   std::string output_path = argv[1];
   output_path += ".ll";
   // copyFile("runtime.ll", output_path);
-  freopen(output_path.c_str(), "a", stdout);
+  freopen(output_path.c_str(), "w", stdout);
   yyin = fopen(argv[1], "r");
   yy::parser parse;
   parse();
@@ -72,6 +72,7 @@ int main(int argc, char **argv) {
   pass_manager->InitPass();
   #endif
   #ifdef SYSY_ENABLE_BACKEND
+  Singleton<Module>().Test();
   auto module_lowering=RISCVModuleLowering();
   module_lowering.run(&Singleton<Module>());
   // std::cout << std::endl;

@@ -5,6 +5,7 @@
 class RISCVModuleLowering:BackEndPass<Module>{
     // bool LoweringGlobalValue(Module*);
     RISCVLoweringContext ctx;
+    void LowerGlobalArgument(Module*); 
     public:
     bool run(Module*);
 };

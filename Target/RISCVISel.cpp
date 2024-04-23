@@ -219,7 +219,21 @@ void RISCVISel::InstLowering(GetElementPtrInst* inst){
 void RISCVISel::InstLowering(PhiInst* inst){
     ///@note phi elimination here,
     ///
-    assert("NOT IMPL");
+    assert(0&&"NOT IMPL");
+}
+
+void RISCVISel::InstLowering(CallInst* inst){
+    // 把VReg Copy到PhyReg
+    // 如果溢出则按照规约store
+    // 如果有返回值则copy a0 到 VReg
+
+    if(!inst->GetUserlist().is_empty()&&inst->GetType()!=VoidType::NewVoidTypeGet()){
+
+    }
+}
+
+void RISCVISel::InstLowering(RetInst* inst){
+
 }
 
 void RISCVISel::InstLowering(User* inst){
@@ -233,6 +247,8 @@ void RISCVISel::InstLowering(User* inst){
     else if(auto binary=dynamic_cast<BinaryInst*>(inst))InstLowering(binary);
     else if(auto gep=dynamic_cast<GetElementPtrInst*>(inst))InstLowering(gep);
     else if(auto phi=dynamic_cast<PhiInst*>(inst))InstLowering(phi);
+    else if(auto call=dynamic_cast<CallInst*>(inst))InstLowering(call);
+    else if(auto ret=dynamic_cast<RetInst*>(inst))InstLowering(ret);
     else assert("Invalid Inst Type");
 }
 

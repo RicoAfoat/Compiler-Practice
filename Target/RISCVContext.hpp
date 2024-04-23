@@ -8,7 +8,7 @@ class RISCVLoweringContext{
     std::map<Value*,RISCVMOperand*> val2mop;
     std::map<Register*,std::string> reg2str;
     /// @warning inner impl use pointers for access, so an unique_ptr will be nice to avoid vector's reallocation
-    using MFuncPtr=std::unique_ptr<RISCVFunction*>;
+    using MFuncPtr=std::unique_ptr<RISCVFunction>;
     std::vector<MFuncPtr> functions;
     /// @todo should we add an entry here? Or we should output functions in any order?
     RISCVFunction* cur_func;
@@ -29,4 +29,5 @@ class RISCVLoweringContext{
     void operator()(RISCVFunction*);
     RISCVMOperand* mapping(Value*);
     VirRegister* createVReg(RISCVType);
+    void print();
 };

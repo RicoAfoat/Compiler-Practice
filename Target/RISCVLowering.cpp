@@ -1,6 +1,14 @@
 #include "RISCVLowering.hpp"
 #include "RISCVISel.hpp"
 
+void RISCVModuleLowering::LowerGlobalArgument(Module* m){
+    assert(0&&"Handled later");
+    // auto& var_vec=m->GetGlobalVariable();
+    // for(auto &i:var_vec){
+
+    // }
+}
+
 bool RISCVModuleLowering::run(Module* m){
     // LoweringGlobalValue(m);
     // start lowering function
@@ -12,6 +20,7 @@ bool RISCVModuleLowering::run(Module* m){
             std::cerr<<"FUNC Lowering failed\n";
         }
     }
+    ctx.print();
     return false;
 }
 

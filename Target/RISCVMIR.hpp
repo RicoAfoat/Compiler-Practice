@@ -139,6 +139,12 @@ class RISCVMIR:public list_node<RISCVBasicBlock,RISCVMIR>
 
         EndFloatArithmetic,
         EndFloat,
+
+        /// @brief Used for call and ret 
+        BeginMIRPseudo,
+        call,
+        ret,
+        EndMIRPseudo,
     }opcode;
     /// @note def in the front while use in the back
     // RISCVMIR(RISCVISA,User* inst);
@@ -150,14 +156,14 @@ class RISCVMIR:public list_node<RISCVBasicBlock,RISCVMIR>
     bool isArithmetic(){
         return (EndArithmetic>opcode&&opcode>BeginArithmetic)|(EndFloatArithmetic>opcode&&opcode>BeginFloatArithmetic);
     }
-    void print();
+    void printfull();
 };
 
 class RISCVBasicBlock:public NamedMOperand,public mylist<RISCVBasicBlock,RISCVMIR>,public list_node<RISCVFunction,RISCVBasicBlock>
 {    
     public:
     RISCVBasicBlock(std::string);
-    void print()final;
+    void printfull();
 };
 
 /// should we save return type here? I suppose not.
@@ -172,5 +178,5 @@ class RISCVFunction:public RISCVGlobalObject,public mylist<RISCVFunction,RISCVBa
     public:
     RISCVFunction(Function*);
     std::vector<FOBJPTR>& GetFrameObjects();
-    void print()final;
+    void printfull();
 };

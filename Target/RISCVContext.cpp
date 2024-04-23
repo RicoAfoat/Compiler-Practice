@@ -36,13 +36,21 @@ void RISCVLoweringContext::operator()(RISCVMIR* minst){
 }
 
 void RISCVLoweringContext::operator()(RISCVBasicBlock* mbb){
+    cur_func->push_back(mbb);
     cur_mbb=mbb;
 }
 
 void RISCVLoweringContext::operator()(RISCVFunction* mfunc){
+    functions.emplace_back(mfunc);
     cur_func=mfunc;
 }
 
 VirRegister* RISCVLoweringContext::createVReg(RISCVType type){
     return new VirRegister(type);
+}
+
+void RISCVLoweringContext::print(){
+    /// @todo print global variables
+    for(auto& mfunc:functions)
+        mfunc->printfull();
 }
