@@ -108,6 +108,9 @@ void ArrayType::print(){
     std::cout<<"]";
 }
 
+BackendPtr::BackendPtr ():Type(BACKEND_PTR) {size=8;}
+void BackendPtr::print() {return;}
+
 RISCVPTR* RISCVPTR::NewRISCVPTRGet(){
     static RISCVPTR single;
     return &single;
